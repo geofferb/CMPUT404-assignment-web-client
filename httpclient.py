@@ -45,13 +45,14 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        return None
+        code = data.splitlines()[0].split()[1]
+        return int(code)
 
     def get_headers(self, data):
-        return None
+        return data.split("\r\n\r\n")[0]
 
     def get_body(self, data):
-        return None
+        return data.split("\r\n\r\n")[1]
 
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -78,11 +79,7 @@ class HTTPClient(object):
             for field, value in otherFields.items():
                 header += f"{field}: {value}\r\n"
 
-        # if body is not in binary format, it needs to be converted
-        if not isinstance(body, (bytes, bytearray)):
-            body = bytearray(body, 'utf-8')
-
-        rq = bytearray(header + "\r\n", 'utf-8') + body
+        rq = header + "\r\n" + body
         # print(rq)
         self.sendall(rq)
 
@@ -90,13 +87,15 @@ class HTTPClient(object):
         code = 500
         body = ""
         u = urllib.parse.urlparse(url)
-        port = u.port if u.port else 8080
+        port = u.port if u.port else 80
         self.connect(u.hostname, port)
         self.sendRequest(url, u.hostname)
         self.socket.shutdown(socket.SHUT_WR)
-        response = self.recvall()
+        data = self.recvall(self.socket)
         self.close()
-        print(response)
+        # print(data)
+        code = self.get_code(data)
+        body = self.get_body(data)
 
         return HTTPResponse(code, body)
 
