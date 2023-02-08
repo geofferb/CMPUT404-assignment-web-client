@@ -132,8 +132,7 @@ class HTTPClient(object):
         body = self.get_body(data)
         headers = self.get_headers(data)
         if ('Content-type: application/json' in headers and body):
-            print(data)
-            body = json.loads(urllib.parse.unquote(body))
+            body = urllib.parse.unquote(body)
 
         return HTTPResponse(code, body)
 
