@@ -72,14 +72,18 @@ class HTTPClient(object):
                 done = not part
         return buffer.decode('utf-8')
 
-    def sendRequest(self, url, hostname, body="", otherFields={}):
+    def sendRequest(self, method, path, hostname, body="", otherFields={}):
         date = formatdate(usegmt=True)  # HTTP formatted data
-        header = f"GET {url} HTTP/1.1 \r\nHost: {hostname}\r\nDate: {date}\r\n"
+        userAgent = 'curl/7.68.0'
+        accept = '*/*'
+        if not path:
+            path = '/'
+        header = f"{method} {path} HTTP/1.1\r\nHost: {hostname}\r\nUser-Agent: {userAgent}\r\nAccept: {accept}\r\n"
         if otherFields:
             for field, value in otherFields.items():
                 header += f"{field}: {value}\r\n"
-
         rq = header + "\r\n" + body
+
         # print(rq)
         self.sendall(rq)
 
@@ -89,7 +93,7 @@ class HTTPClient(object):
         u = urllib.parse.urlparse(url)
         port = u.port if u.port else 80
         self.connect(u.hostname, port)
-        self.sendRequest(url, u.hostname)
+        self.sendRequest('GET', u.path, u.hostname)
         self.socket.shutdown(socket.SHUT_WR)
         data = self.recvall(self.socket)
         self.close()
