@@ -110,6 +110,7 @@ class HTTPClient(object):
         code = 500
         body = ""
         rBody = ""
+        # only this content-type needs to be supported
         fields = {'Content-Type': 'application/x-www-form-urlencoded'}
         contentLength = 0
         if args:
@@ -117,7 +118,8 @@ class HTTPClient(object):
                 rBody += f'{field}={urllib.parse.quote(value)}&'
             rBody = rBody[:-1]  # remove final &
         u = urllib.parse.urlparse(url)
-        contentLength = len(rBody.encode('utf-8'))
+        contentLength = len(rBody.encode('utf-8'))  # calculate content length
+        # add content length to header
         fields['Content-Length'] = str(contentLength)
 
         port = u.port if u.port else 80
@@ -131,6 +133,8 @@ class HTTPClient(object):
         code = self.get_code(data)
         body = self.get_body(data)
         headers = self.get_headers(data)
+
+        # decode params if json is returned
         if ('Content-type: application/json' in headers and body):
             body = urllib.parse.unquote(body)
 
