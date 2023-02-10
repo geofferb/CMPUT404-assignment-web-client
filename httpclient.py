@@ -116,25 +116,6 @@ class HTTPClient(object):
 
         return HTTPResponse(code, body)
 
-    def prepend_HTTP_ifNeeded(self, url):
-        '''Returns a url prepended with // if it does not start with http:// to ensure url parser functions.'''
-        if not url.startswith('http'):
-            return '//' + url
-        else:
-            return url
-
-    def add_query_param(self, url, args={}):
-        '''Given a URL and a dictionary, adds or replaces
-        the query parameter(s) from the dictionary and returns the modified URL.'''
-        # adopted from answer at https://stackoverflow.com/a/12897375 by Wilfred Hughes
-        scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
-        qs = query
-        query_params = urllib.parse.parse_qs(qs)
-        for field, value in args.items():
-            query_params[field] = value
-        query = urllib.parse.urlencode(query_params)
-        return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
-
     def POST(self, url, args=None):
         url = self.prepend_HTTP_ifNeeded(url)
         code = 500
@@ -166,6 +147,7 @@ class HTTPClient(object):
 
         return HTTPResponse(code, body)
 
+    # helper functions
     def dict_to_form_urlencode(self, args):
         rBody = ""
         for field, value in args.items():
@@ -175,6 +157,25 @@ class HTTPClient(object):
 
     def get_content_length(self, str):
         return len(str.encode('utf-8'))
+
+    def prepend_HTTP_ifNeeded(self, url):
+        '''Returns a url prepended with // if it does not start with http:// to ensure url parser functions.'''
+        if not url.startswith('http'):
+            return '//' + url
+        else:
+            return url
+
+    def add_query_param(self, url, args={}):
+        '''Given a URL and a dictionary, adds or replaces
+        the query parameter(s) from the dictionary and returns the modified URL.'''
+        # adopted from answer at https://stackoverflow.com/a/12897375 by Wilfred Hughes
+        scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
+        qs = query
+        query_params = urllib.parse.parse_qs(qs)
+        for field, value in args.items():
+            query_params[field] = value
+        query = urllib.parse.urlencode(query_params)
+        return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
     def command(self, url, command="GET", args=None):
         if (command == "POST"):
