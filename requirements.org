@@ -27,7 +27,7 @@
 ** Requirements
    - [X] Implement basic HTTP GET
    - [X] Implement basic HTTP POST
-   - [ ] The httpclient can pass all the tests in freetests.py
+   - [X] The httpclient can pass all the tests in freetests.py
    - [ ] The webserver can pass all the tests in not-free-tests.py
      (you don't have this one! it can change -- but it will be fair to the user stories/requirements)
    - [X] HTTP POST can post vars

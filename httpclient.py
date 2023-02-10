@@ -73,7 +73,7 @@ class HTTPClient(object):
 
     def sendRequest(self, method, path, hostname, body="", otherFields={}):
         date = formatdate(usegmt=True)  # HTTP formatted data
-        userAgent = 'Python/3.6'
+        userAgent = 'Python'
         accept = '*/*'
         if not path:
             path = '/'
@@ -82,6 +82,7 @@ class HTTPClient(object):
             f"Host: {hostname}\r\n"
             f"User-Agent: {userAgent}\r\n"
             f"Accept: {accept}\r\n"
+            f"Connection: close\r\n"
         )
         if otherFields:
             for field, value in otherFields.items():
@@ -91,7 +92,6 @@ class HTTPClient(object):
         else:
             rq = header + "\r\n"
 
-        print(rq)
         self.sendall(rq)
 
     def GET(self, url, args=None):
@@ -101,10 +101,8 @@ class HTTPClient(object):
         port = u.port if u.port else 80
         self.connect(u.hostname, port)
         self.sendRequest('GET', u.path, u.hostname)
-        self.socket.shutdown(socket.SHUT_WR)
         data = self.recvall(self.socket)
         self.close()
-        print(data)
         code = self.get_code(data)
         body = self.get_body(data)
 
@@ -128,7 +126,6 @@ class HTTPClient(object):
 
         port = u.port if u.port else 80
         self.connect(u.hostname, port)
-        print(rBody)
         self.sendRequest('POST', u.path, u.hostname,
                          body=rBody, otherFields=fields)
         self.socket.shutdown(socket.SHUT_WR)
