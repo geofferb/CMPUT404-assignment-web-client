@@ -36,8 +36,8 @@
    - [X] httpclient can handle 404 requests and 200 requests
 
 ** Restrictions
-   - [ ] Use Python 3.6 (3.6.7 is preferred)
-   - [ ] Must run in the VM without virtualenv (Ubuntu 18.10, Python 3.6)
+   - [X] Use Python 3.6 (3.6.7 is preferred)
+   - [X] Must run in the VM without virtualenv (Ubuntu 18.10, Python 3.6)
    - [X] License your httpclient properly (use an OSI approved license)
      - Put your name on it!
    - [X] You cannot use a Web Client library except for urllib utils
