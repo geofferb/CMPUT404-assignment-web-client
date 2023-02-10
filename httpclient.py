@@ -119,25 +119,37 @@ class HTTPClient(object):
         fields = {'Content-Type': 'application/x-www-form-urlencoded'}
         contentLength = 0
         if args:
-            for field, value in args.items():
-                rBody += f'{field}={urllib.parse.quote(value)}&'
-            rBody = rBody[:-1]  # remove final &
+            rBody = self.dict_to_form_urlencode()
+
         u = urllib.parse.urlparse(url)
-        contentLength = len(rBody.encode('utf-8'))  # calculate content length
+        contentLength = self.get_content_length(
+            rBody)  # calculate content length
         # add content length to header
         fields['Content-Length'] = str(contentLength)
 
         port = u.port if u.port else 80
         self.connect(u.hostname, port)
+
         self.sendRequest('POST', u.path, u.hostname,
                          body=rBody, otherFields=fields)
+
         data = self.recvall(self.socket)
         self.close()
+
         code = self.get_code(data)
         body = self.get_body(data)
-        headers = self.get_headers(data)
 
         return HTTPResponse(code, body)
+
+    def dict_to_form_urlencode(self, args):
+        rBody = ""
+        for field, value in args.items():
+            rBody += f'{field}={urllib.parse.quote(value)}&'
+        rBody = rBody[:-1]  # remove final &
+        return rBody
+
+    def get_content_length(self, str):
+        return len(str.encode('utf-8'))
 
     def command(self, url, command="GET", args=None):
         if (command == "POST"):
