@@ -75,7 +75,6 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def sendRequest(self, method, path, hostname, body="", otherFields={}, qParams=""):
-        date = formatdate(usegmt=True)  # HTTP formatted data
         if qParams:
             qParams = '?'+qParams
         userAgent = 'Python'
@@ -102,9 +101,11 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
+        url = self.prepend_HTTP_ifNeeded(url)
         if args:  # append args if given
             url = self.add_query_param(url)
         u = urllib.parse.urlparse(url)
+
         port = u.port if u.port else 80
         self.connect(u.hostname, port)
         self.sendRequest('GET', u.path, u.hostname, qParams=u.query)
@@ -115,8 +116,15 @@ class HTTPClient(object):
 
         return HTTPResponse(code, body)
 
+    def prepend_HTTP_ifNeeded(self, url):
+        '''Returns a url prepended with // if it does not start with http:// to ensure url parser functions.'''
+        if not url.startswith('http'):
+            return '//' + url
+        else:
+            return url
+
     def add_query_param(self, url, args={}):
-        '''Given a URL and a dictionary, adds or replaces 
+        '''Given a URL and a dictionary, adds or replaces
         the query parameter(s) from the dictionary and returns the modified URL.'''
         # adopted from answer at https://stackoverflow.com/a/12897375 by Wilfred Hughes
         scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
@@ -128,6 +136,7 @@ class HTTPClient(object):
         return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
     def POST(self, url, args=None):
+        url = self.prepend_HTTP_ifNeeded(url)
         code = 500
         body = ""
         rBody = ""
