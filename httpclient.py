@@ -137,10 +137,6 @@ class HTTPClient(object):
         body = self.get_body(data)
         headers = self.get_headers(data)
 
-        # decode params if json is returned
-        if ('Content-type: application/json' in headers and body):
-            body = urllib.parse.unquote(body)
-
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
