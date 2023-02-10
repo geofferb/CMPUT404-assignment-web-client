@@ -20,7 +20,6 @@
 
 import sys
 import socket
-import json
 from email.utils import formatdate
 # you may use urllib to encode data appropriately
 import urllib.parse
@@ -78,7 +77,12 @@ class HTTPClient(object):
         accept = '*/*'
         if not path:
             path = '/'
-        header = f"{method} {path} HTTP/1.1\r\nHost: {hostname}\r\nUser-Agent: {userAgent}\r\nAccept: {accept}\r\n"
+        header = (
+            f"{method} {path} HTTP/1.1\r\n"
+            f"Host: {hostname}\r\n"
+            f"User-Agent: {userAgent}\r\n"
+            f"Accept: {accept}\r\n"
+        )
         if otherFields:
             for field, value in otherFields.items():
                 header += f"{field}: {value}\r\n"
@@ -100,7 +104,7 @@ class HTTPClient(object):
         self.socket.shutdown(socket.SHUT_WR)
         data = self.recvall(self.socket)
         self.close()
-        # print(data)
+        print(data)
         code = self.get_code(data)
         body = self.get_body(data)
 
