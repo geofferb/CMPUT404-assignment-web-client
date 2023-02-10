@@ -74,14 +74,16 @@ class HTTPClient(object):
                 done = not part
         return buffer.decode('utf-8')
 
-    def sendRequest(self, method, path, hostname, body="", otherFields={}):
+    def sendRequest(self, method, path, hostname, body="", otherFields={}, qParams=""):
         date = formatdate(usegmt=True)  # HTTP formatted data
+        if qParams:
+            qParams = '?'+qParams
         userAgent = 'Python'
         accept = '*/*'
         if not path:
             path = '/'
         header = (
-            f"{method} {path} HTTP/1.1\r\n"
+            f"{method} {path+qParams} HTTP/1.1\r\n"
             f"Host: {hostname}\r\n"
             f"User-Agent: {userAgent}\r\n"
             f"Accept: {accept}\r\n"
@@ -100,16 +102,30 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
+        if args:  # append args if given
+            url = self.add_query_param(url)
         u = urllib.parse.urlparse(url)
         port = u.port if u.port else 80
         self.connect(u.hostname, port)
-        self.sendRequest('GET', u.path, u.hostname)
+        self.sendRequest('GET', u.path, u.hostname, qParams=u.query)
         data = self.recvall(self.socket)
         self.close()
         code = self.get_code(data)
         body = self.get_body(data)
 
         return HTTPResponse(code, body)
+
+    def add_query_param(self, url, args={}):
+        '''Given a URL and a dictionary, adds or replaces 
+        the query parameter(s) from the dictionary and returns the modified URL.'''
+        # adopted from answer at https://stackoverflow.com/a/12897375 by Wilfred Hughes
+        scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
+        qs = query
+        query_params = urllib.parse.parse_qs(qs)
+        for field, value in args.items():
+            query_params[field] = value
+        query = urllib.parse.urlencode(query_params)
+        return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
     def POST(self, url, args=None):
         code = 500
