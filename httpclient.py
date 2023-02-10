@@ -128,7 +128,6 @@ class HTTPClient(object):
         self.connect(u.hostname, port)
         self.sendRequest('POST', u.path, u.hostname,
                          body=rBody, otherFields=fields)
-        self.socket.shutdown(socket.SHUT_WR)
         data = self.recvall(self.socket)
         self.close()
         code = self.get_code(data)
