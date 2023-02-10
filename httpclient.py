@@ -119,7 +119,7 @@ class HTTPClient(object):
         fields = {'Content-Type': 'application/x-www-form-urlencoded'}
         contentLength = 0
         if args:
-            rBody = self.dict_to_form_urlencode()
+            rBody = self.dict_to_form_urlencode(args)
 
         u = urllib.parse.urlparse(url)
         contentLength = self.get_content_length(
